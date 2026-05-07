@@ -1,0 +1,80 @@
+# Default exclude — strict pre Health projekt (PII Tier 1)
+.env
+*.env
+*.env.local
+.env.*
+.mcp.json
+settings.json
+
+# Credentials / secrets
+*.key
+*.pem
+*.p12
+*.pfx
+.ssh/
+credentials*
+*credentials*
+.aws/
+.config/
+
+# Lekarske data — NIKDY do gitu (PII Tier 1)
+**/data/*
+**/imports/*
+**/exports/*
+**/dicom/*
+*medical*
+*recept*
+*sprava*
+*lab-result*
+*lab-results*
+*diagnoza*
+*diagnosis*
+*provider*
+*ehealth*
+
+# DICOM / medical imaging
+*.dcm
+*.dicom
+*.nii
+*.nii.gz
+
+# DNA / genomic
+*.vcf
+*.vcf.gz
+*.fastq
+*.fasta
+*.bam
+**/genomic/*
+
+# Apple Health / Oura / wearable exports
+*export.zip
+*HealthKit*
+*oura-export*
+
+# Db dumps / backups (mozu obsahovat tenant data po SaaS pivote)
+*.sql
+*.dump
+*.bak
+backup-*
+**/backups/*
+
+# Generic sensitive
+*personal-data*
+*private-*
+*tenant-*
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*~
+
+# Docker volumes (lokalne mounted data)
+**/postgres-data/*
+**/fasten-data/*
+**/traefik-data/*
