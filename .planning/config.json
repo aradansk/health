@@ -44,7 +44,7 @@
   "hooks": {
     "context_warnings": true
   },
-  "project_code": null,
+  "project_code": "HEALTH",
   "phase_naming": "sequential",
   "agent_skills": {},
   "claude_md_path": "./CLAUDE.md",
