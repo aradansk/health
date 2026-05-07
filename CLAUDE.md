@@ -103,3 +103,32 @@ Cross-reference cez Obsidian:
 - `.planning/` -- GSD ROADMAP + phases (od startu, lebo SaaS pivot path)
 - `.mcp.json` -- per-projekt MCP config (claude-peers, obsidian, context7 default)
 - `.gitignore` -- strict exclude (rovnaky pattern ako Personal + DICOM/medical/lab)
+
+## Obsidian Vault — kam tento projekt zapisuje
+
+Globálne pravidlá vault-u sú v `~/.claude/CLAUDE.md` → "Obsidian Knowledge Vault". Tento súbor je scope pointer pre Health.
+
+**Primárny scope pre health session:** `SOLO/health/`
+
+| Téma | Cesta |
+|------|-------|
+| Strategické decisions (Fasten deployment, ETL design, multi-tenant model, SaaS pivot triggers) | `SOLO/health/Decisions/YYYY-MM-DD_<topic>.md` |
+| Architektúra (DB schema, RLS, FHIR mapping, ETL pipeline, dashboard layer) | `SOLO/health/Architecture/<topic>.md` |
+| Knowledge (Apple Health export formát, Oura API, DNA file formats, lab PDF parsing) | `SOLO/health/Knowledge/<topic>.md` |
+| Univerzálne patterns (multi-tenant RLS, FHIR, encryption-at-rest) | `Knowledge/{tech,patterns}/<topic>.md` |
+
+## ⚠️ KRITICKÉ — Data isolation pravidlo
+
+**NIKDY nezapisuj do Vault konkrétne osobné zdravotné dáta.** Patria do Fasten DB (alebo do `PRIVATE/Health/` ak vznikne — odlišné od `SOLO/health/`).
+
+| ❌ Nikdy v `SOLO/health/` | ✅ OK v `SOLO/health/` |
+|---------------------------|-----------------------|
+| Konkrétne lab numbers ("hemoglobin 14.2 g/dL") | Pattern: "ETL pipeline pre lab CBC results — 4 fields, mapping na FHIR Observation" |
+| Mená lekárov, kliniky, telefóny | "Provider entity má fields: name, NPI, country (FR/DE/SK varianty)" |
+| Recipty, dosing, lieky ktoré beriem | "Medication entity FHIR R4 mapping" |
+| DNA raw výsledky, mutácie, predispozície | "DNA file formats: 23andMe raw, Ancestry, generic VCF" |
+| MR/RTG snímky, diagnózy | "DICOM storage backend choice: PACS lite vs Orthanc" |
+
+**Prečo:** Vault je product-knowledge layer, dáta sú v DB. Pri SaaS pivot žiadna migrácia nie je potrebná.
+
+**Po každom zápise** → aktualizuj `Knowledge/AGENT-INDEX.md`.

@@ -1,0 +1,4 @@
+// Git internals — NIKDY cez Syncthing (race condition na packfiles)
+// Verzionovanie: GitHub remote je single source of truth
+.git
+.git/**
