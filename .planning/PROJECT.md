@@ -52,8 +52,8 @@ Pouzivatel teraz: Andrej (single-user). Pouzivatel pri pivote: health-conscious 
 **Technicky ekosystem:**
 
 - Self-hosted lokalne (PC docker desktop pri vyvoji), mozna migracia na Hetzner CX22 (~5€/mes, 4GB RAM) pri SaaS pivote alebo skor ak treba 24/7 uptime
-- Stack: Docker Compose + Postgres 16 (multi-DB: `fasten`, `analytics`) + Fasten On-Premises + Next.js + Traefik + Vaultwarden glue
-- Postgres 16 plain teraz, prechod na Supabase Self-Hosted az pri SaaS pivote (auth/RLS/storage/realtime/edge funcs v jednej skrini)
+- Stack: Docker Compose + Fasten On-Premises (SQLite-only — upstream Postgres support BROKEN 2026-05) + Postgres 16 (custom analytics DB) + Next.js + Traefik + Vaultwarden glue
+- Postgres 16 plain teraz pre custom analytics; Fasten ostava na SQLite kym upstream nepodporí Postgres. Prechod na Supabase Self-Hosted az pri SaaS pivote (auth/RLS/storage/realtime/edge funcs v jednej skrini).
 - Multi-tenant: `tenant_id` column + RLS hooks v custom kode od dna 1, Fasten = single-user instance teraz, pri SaaS = per-tenant Fasten instance ALEBO Fasten Multi-User (treba research)
 
 **Prior work:**
@@ -83,15 +83,16 @@ Pouzivatel teraz: Andrej (single-user). Pouzivatel pri pivote: health-conscious 
 - **Security:** PII Tier 1 = encryption-at-rest, encrypted backups (gpg / age), no PII v logoch / debug payload, no PII v gite (.gitignore strict pattern). Pri SaaS pivote: GDPR Art. 9 + DPIA + Art. 32 technical measures.
 - **Timeline (M1):** "co najskor" — ciel ~1 mesiac od plan-phase 1 (subject to research findings + plan complexity).
 - **Budget:** 0 € pre M1 (lokalny PC, free open-source), ~5 €/mes od M4+ (Hetzner). SaaS pivot revenue ciel definovany az v M5.
-- **Dependencies:** Fasten On-Premises (open-source, MIT license). Oura API token (osobny). Apple Health iOS export (manual). Vaultwarden (uz nasadeny v `docker-srv-01:8094` ale pre Personal/Health vlastny copy lokalne).
+- **Dependencies:** Fasten On-Premises (open-source, **GPL-3.0** license — over. 2026-05-09; SaaS pivot vyzaduje lawyer-grade interpretation copyleft v M4 prep). Oura API token (osobny). Apple Health iOS export (manual). Vaultwarden (uz nasadeny v `docker-srv-01:8094` ale pre Personal/Health vlastny copy lokalne).
 
 ## Key Decisions
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
 | 2 separate projekty (Health + Personal) | Finance NIE je realny SaaS produkt (B2C trh saturovany YNAB/Monarch); Health JE realna SaaS pivot path (EU healthcare medzera). GSD overhead opravneny len pre produktovy projekt. | — Pending |
-| Fasten On-Premises ako FHIR backend | Open-source, aktivny vyvoj, MIT license, FHIR R4 spravne, US katalog providers (zaklad), vlastnictvo dat | — Pending |
-| Plain Postgres 16 v M1 (NIE Supabase) | Multi-DB v jednom containeri staci pre single-user, Supabase Self-Hosted ma zmysel az pri SaaS pivote (auth/RLS/storage v jednej skrini) | — Pending |
+| Fasten On-Premises ako FHIR backend | Open-source, aktivny vyvoj, **GPL-3.0** license (NIE MIT — over. 2026-05-09 cez `gh api`), FHIR R4 spravne, US katalog providers (zaklad), vlastnictvo dat. **SaaS implication:** copyleft vyzaduje lawyer-grade interpretation v M4 prep faze. | — Pending |
+| Fasten = SQLite, Postgres len pre analytics | Upstream Postgres support v Fasten je BROKEN per `config.yaml` 2026-05 ("postgres will be supported in the future, but is completely BROKEN"). Plan "1 Postgres multi-DB fasten+analytics" nie je realny — Fasten ostava na SQLite, Postgres 16 hosti len custom analytics DB. Revisit pri kazdom Fasten releaseu. | — Pending |
+| Plain Postgres 16 v M1 (NIE Supabase) — pre analytics | Postgres pre custom analytics layer (NIE Fasten) staci pre single-user. Supabase Self-Hosted ma zmysel az pri SaaS pivote (auth/RLS/storage v jednej skrini). | — Pending |
 | Multi-tenant readiness od dna 1 (`tenant_id` + RLS) | Refactor single→multi by stal velky rebuild, schema-level pripravenost je lacna teraz | — Pending |
 | Lokalny PC docker desktop v M1 (NIE Hetzner) | Zero-cost, no PII v cloude pred DPIA prep, vyvoj rychlejsi lokalne | — Pending |
 | Traefik + CF Tunnel ready (deploy v M2+) | Tunel cez `health.ardan.sk` az ked je lokal stable; lokalny development LAN-only | — Pending |

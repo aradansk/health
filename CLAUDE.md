@@ -53,8 +53,8 @@ Health je **PRIVATE projekt** podla `~/.claude/CLAUDE.md` definicie (lekarske da
 
 ```
 Self-hosted lokalne (PC alebo neskor Hetzner CX22) — NIE docker-srv-01 (firemny)
-├── Postgres 16 (jeden container, multi-DB: fasten, analytics)
-├── Fasten On-Premises (open-source FHIR aggregator, vlastna schema vo `fasten` DB)
+├── Fasten On-Premises (open-source FHIR aggregator, **SQLite-only** — Postgres support upstream BROKEN)
+├── Postgres 16 (custom analytics layer DB — `analytics` only, NIE `fasten`)
 ├── Custom analytics layer (Next.js + Drizzle/Prisma) — multi-tenant ready
 │   └── tenant_id column + RLS hooks od stratu, single-user MVP teraz
 ├── ETL workers (cron / queue):
@@ -70,7 +70,9 @@ Self-hosted lokalne (PC alebo neskor Hetzner CX22) — NIE docker-srv-01 (firemn
 
 **Hosting decision:** Lokalne na PC (compose stack portable). Migracia na Hetzner CX22 (~5€/mes, 4GB) pri SaaS pivote alebo skor ak treba 24/7 uptime.
 
-**DB decision:** Plain Postgres 16 teraz. Supabase Self-Hosted az pri SaaS pivote (vtedy ma zmysel auth/RLS/storage/realtime/edge funcs v jednej skrini).
+**DB decision:** Fasten = SQLite (upstream Postgres BROKEN per `config.yaml` 2026-05). Plain Postgres 16 pre custom analytics teraz. Supabase Self-Hosted az pri SaaS pivote (vtedy ma zmysel auth/RLS/storage/realtime/edge funcs v jednej skrini). Postgres pre Fasten = revisit pri kazdom Fasten releaseu az kym upstream nepodporí.
+
+**License decision:** Fasten On-Premises je **GPL-3.0** (NIE MIT — over 2026-05-09). Pri SaaS pivote (M4) je nutna lawyer-grade interpretation copyleft (kazdy SaaS pouzivatel ma pravo na zdrojovy kod kompletneho stacku ak distribuujeme fork) — flag pre legal research v M4 prep faze.
 
 **Multi-tenant decision:** Custom analytics kod = `tenant_id` column + RLS od startu. Fasten = single-user instance teraz (Fasten ma vlastny user concept). Multi-tenant orchestracia = buduca vrstva (Traefik tenant routing, per-tenant schemy alebo per-tenant Fasten instance).
 

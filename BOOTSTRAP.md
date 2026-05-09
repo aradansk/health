@@ -54,8 +54,8 @@ CEO definoval 2026-05-07:
 - **Pri raste / SaaS:** Hetzner CX22 (~5€/mes, 4GB RAM, dosta pre Fasten + Postgres + analytics)
 
 ### DB
-- **Teraz:** Plain Postgres 16, jeden container, multi-DB (`fasten`, `analytics`)
-- **Pri SaaS pivote:** Supabase Self-Hosted (auth/RLS/storage/realtime/edge funcs v jednej skrini)
+- **Teraz:** Fasten = **SQLite** (upstream Postgres support BROKEN 2026-05). Custom analytics layer = Postgres 16 (analytics DB only).
+- **Pri SaaS pivote:** Supabase Self-Hosted (auth/RLS/storage/realtime/edge funcs v jednej skrini); Fasten Postgres podpora — revisit kazdy Fasten release.
 
 ### Multi-tenant readiness
 - Custom analytics kod = `tenant_id` column + RLS od startu (single-user MVP, ale schema pripravena)
