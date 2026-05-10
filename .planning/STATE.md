@@ -1,0 +1,75 @@
+# Project State
+
+## Project Reference
+
+See: .planning/PROJECT.md (updated 2026-05-07)
+
+**Core value:** Vsetky moje zdravotne data na jednom mieste, vyhladatelne a vlastne ovladane. Self-hosted aggregator nad Fasten OnPrem (GPL-3.0, FHIR-based) s multi-tenant readiness od dna 1, pripraveny na SaaS pivot pre EU/SK trh.
+**Current focus:** Phase 1.0 — Fasten Ingest API Spike (2-day timeboxed, blocks plan-lock for 1.4+)
+
+## Current Position
+
+Phase: 1.0 of 1.11 (Fasten Ingest API Spike)
+Plan: 0 of TBD in current phase
+Status: Ready to plan
+Last activity: 2026-05-10 — ROADMAP.md created (12 sub-phases, 75/75 REQs mapped, 3 hard gates)
+
+Progress: [░░░░░░░░░░] 0%
+
+## Performance Metrics
+
+**Velocity:**
+- Total plans completed: 0
+- Average duration: n/a
+- Total execution time: 0 hours
+
+**By Phase:**
+
+| Phase | Plans | Total | Avg/Plan |
+|-------|-------|-------|----------|
+
+*Updated after each plan completion*
+
+## Accumulated Context
+
+### Decisions
+
+Decisions are logged in PROJECT.md Key Decisions table.
+Recent decisions affecting current work:
+
+- Fasten On-Premises = FHIR backend (GPL-3.0, NOT MIT — verified via `gh api` 2026-05-09)
+- Fasten = SQLite (upstream Postgres support BROKEN); Postgres 16.13 hosts custom analytics only
+- Multi-tenant readiness from day 1: `tenant_id` + RLS active in M1 single-tenant (no theater)
+- Build order = infra-first (RLS gate before any app code; ETLs easiest-first Oura → Apple Health → Lab PDF)
+- Phase 1.0 spike validates Fasten ingest API surface before plan-lock for ETL phases
+- Conservative version pins: Next.js 15.2.4, Auth.js v4.24.14 (vs. v5 beta / 16.x bleeding edge)
+- Logger = pino allowlist redaction (NOT denylist); Sentry off by default
+
+### Pending Todos
+
+[From .planning/todos/pending/ — ideas captured during sessions]
+
+None yet.
+
+### Blockers/Concerns
+
+[Issues that affect future work]
+
+- **Fasten ingest API undocumented** (MEDIUM confidence) → Phase 1.0 spike resolves; if spike fails, ETL phases pivot to fallback (volume-mount JSON drop / direct SQLite / UI scrape).
+- **Slovak Unilabs OCR accuracy** (MEDIUM confidence, no public benchmark) → Phase 1.8 acceptance gate: ≥80% on 5 SK PDFs OR mandatory review queue 100% confirm-before-persist.
+- **age private key custody** (CATASTROPHIC if missed) → 3 independent custody locations enforced in Phase 1.10; first restore drill BLOCKS Phase 1.11.
+- **GPL-3.0 + per-tenant SaaS** → architectural firewall validated in Phase 1.4; lawyer review deferred to M4 prep.
+
+## Deferred Items
+
+Items acknowledged and carried forward from previous milestone close:
+
+| Category | Item | Status | Deferred At |
+|----------|------|--------|-------------|
+| *(none — M1 is first milestone)* | | | |
+
+## Session Continuity
+
+Last session: 2026-05-10
+Stopped at: ROADMAP.md + STATE.md created; REQUIREMENTS.md traceability updated. Ready to run `/gsd-plan-phase 1.0`.
+Resume file: None

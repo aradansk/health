@@ -114,22 +114,106 @@ Requirements pre uvodny release MVP. Kazdy sa mapuje na fazu v ROADMAP.md. Zacia
 - [ ] **COMPL-07**: DPIA per EDPB template authored pred tenant 1 onboarding (M4 deliverable; consultation closes 2026-06-09, finalna template Q4 2026); M1 = self-DPIA self-onboarding
 - [ ] **COMPL-08**: Art. 28 DPA boilerplate signed s vsetkymi third-party processors (Hetzner pri M4 cloud move, Cloudflare, Backblaze) pred SaaS launch
 
-## REQ → Phase Mapping
+## Traceability — REQ to Phase Mapping (1-to-1, authoritative)
 
-| Phase | Title | REQs covered |
+Every M1 requirement maps to exactly one phase in `ROADMAP.md`. Coverage: 75/75 REQs, no orphans, no double-mappings. Status updated as phases complete via `/gsd-transition`.
+
+| REQ | Phase | Status |
+|-----|-------|--------|
+| INFRA-01 | 1.1 | Pending |
+| INFRA-02 | 1.1 | Pending |
+| INFRA-03 | 1.1 | Pending |
+| INFRA-04 | 1.1 | Pending |
+| INFRA-05 | 1.1 | Pending |
+| INFRA-06 | 1.0 | Pending |
+| INFRA-07 | 1.1 | Pending |
+| INFRA-08 | 1.3 | Pending |
+| INFRA-09 | 1.11 | Pending |
+| INFRA-10 | 1.11 | Pending |
+| DATA-01 | 1.2 | Pending |
+| DATA-02 | 1.4 | Pending |
+| DATA-03 | 1.2 | Pending |
+| DATA-04 | 1.2 | Pending |
+| DATA-05 | 1.2 | Pending |
+| DATA-06 | 1.2 | Pending |
+| DATA-07 | 1.4 | Pending |
+| DATA-08 | 1.2 | Pending |
+| DATA-09 | 1.4 | Pending |
+| DATA-10 | 1.7 | Pending |
+| AUTH-01 | 1.4 | Pending |
+| AUTH-02 | 1.5 | Pending |
+| AUTH-03 | 1.2 | Pending |
+| AUTH-04 | 1.2 | Pending |
+| AUTH-05 | 1.2 | Pending |
+| ETL-01 | 1.6 | Pending |
+| ETL-02 | 1.7 | Pending |
+| ETL-03 | 1.7 | Pending |
+| ETL-04 | 1.7 | Pending |
+| ETL-05 | 1.6 | Pending |
+| ETL-06 | 1.6 | Pending |
+| ETL-07 | 1.6 | Pending |
+| ETL-08 | 1.8 | Pending |
+| ETL-09 | 1.8 | Pending |
+| ETL-10 | 1.8 | Pending |
+| ANALYTICS-01 | 1.5 | Pending |
+| ANALYTICS-02 | 1.9 | Pending |
+| ANALYTICS-03 | 1.9 | Pending |
+| ANALYTICS-04 | 1.9 | Pending |
+| ANALYTICS-05 | 1.9 | Pending |
+| ANALYTICS-06 | 1.9 | Pending |
+| ANALYTICS-07 | 1.9 | Pending |
+| ANALYTICS-08 | 1.9 | Pending |
+| SEC-01 | 1.1 | Pending |
+| SEC-02 | 1.5 | Pending |
+| SEC-03 | 1.5 | Pending |
+| SEC-04 | 1.5 | Pending |
+| SEC-05 | 1.3 | Pending |
+| SEC-06 | 1.1 | Pending |
+| SEC-07 | 1.11 | Pending |
+| SEC-08 | 1.1 | Pending |
+| OPS-01 | 1.10 | Pending |
+| OPS-02 | 1.10 | Pending |
+| OPS-03 | 1.10 | Pending |
+| OPS-04 | 1.10 | Pending |
+| OPS-05 | 1.10 | Pending |
+| OPS-06 | 1.10 | Pending |
+| OPS-07 | 1.10 | Pending |
+| OPS-08 | 1.10 | Pending |
+| TEST-01 | 1.2 | Pending |
+| TEST-02 | 1.7 | Pending |
+| TEST-03 | 1.5 | Pending |
+| TEST-04 | 1.10 | Pending |
+| TEST-05 | 1.8 | Pending |
+| UI-01 | 1.8 | Pending |
+| UI-02 | 1.9 | Pending |
+| UI-03 | 1.9 | Pending |
+| COMPL-01 | 1.11 | Pending |
+| COMPL-02 | 1.11 | Pending |
+| COMPL-03 | 1.10 | Pending |
+| COMPL-04 | 1.10 | Pending |
+| COMPL-05 | 1.11 | Pending |
+| COMPL-06 | 1.4 | Pending |
+| COMPL-07 | 1.11 | Pending |
+| COMPL-08 | 1.11 | Pending |
+
+### Phase to REQ summary
+
+| Phase | Title | REQs (count) |
 |-------|-------|--------------|
-| 1.0 | Fasten ingest API spike | INFRA-06 (digest), DATA-02 (Fasten SQLite verification) |
-| 1.1 | Compose skeleton + FDE + Vaultwarden glue | INFRA-01..08, SEC-01, SEC-08 |
-| 1.2 | Postgres + RLS + tests + ESLint rule (HARD GATE) | DATA-01, DATA-03..05, DATA-08, AUTH-03..05, TEST-01 |
-| 1.3 | Traefik + internal routing | INFRA-08, SEC-05 |
-| 1.4 | Fasten container + smoke test | DATA-02, DATA-09, AUTH-01, COMPL-06 |
-| 1.5 | Next.js Analytics + Auth.js + logger redaction | ANALYTICS-01, AUTH-02, SEC-02..04, TEST-03 |
-| 1.6 | Oura ETL (easiest pipeline) | ETL-01, ETL-05..07, DATA-08..09 |
-| 1.7 | Apple Health XML ETL + dedup/timezone | ETL-02..04, DATA-10, TEST-02 |
-| 1.8 | Lab PDF OCR + manual review queue | ETL-08..10, UI-01, TEST-05 |
-| 1.9 | Custom analytics dashboards | ANALYTICS-02..08, UI-02..03 |
-| 1.10 | Backup + age + first restore drill | OPS-01..08, TEST-04, COMPL-03..04 |
-| 1.11 | Cloudflare Tunnel + M1 verification gates | INFRA-09..10, SEC-07, COMPL-01, COMPL-05 |
+| 1.0 | Fasten Ingest API Spike | INFRA-06 (1) |
+| 1.1 | Compose Skeleton + FDE + Vaultwarden Glue | INFRA-01, INFRA-02, INFRA-03, INFRA-04, INFRA-05, INFRA-07, SEC-01, SEC-06, SEC-08 (9) |
+| 1.2 | Postgres + RLS + Tests + ESLint Rule (HARD GATE) | DATA-01, DATA-03, DATA-04, DATA-05, DATA-06, DATA-08, AUTH-03, AUTH-04, AUTH-05, TEST-01 (10) |
+| 1.3 | Traefik + Internal Network Routing | INFRA-08, SEC-05 (2) |
+| 1.4 | Fasten Container + Smoke Test + Patient Resolver | DATA-02, DATA-07, DATA-09, AUTH-01, COMPL-06 (5) |
+| 1.5 | Next.js Analytics + Auth.js + Logger Redaction | ANALYTICS-01, AUTH-02, SEC-02, SEC-03, SEC-04, TEST-03 (6) |
+| 1.6 | Oura ETL | ETL-01, ETL-05, ETL-06, ETL-07 (4) |
+| 1.7 | Apple Health XML ETL + Dedup + Timezone | ETL-02, ETL-03, ETL-04, DATA-10, TEST-02 (5) |
+| 1.8 | Lab PDF OCR + Manual Review Queue (HARD GATE) | ETL-08, ETL-09, ETL-10, UI-01, TEST-05 (5) |
+| 1.9 | Custom Analytics Dashboards + Settings UI | ANALYTICS-02, ANALYTICS-03, ANALYTICS-04, ANALYTICS-05, ANALYTICS-06, ANALYTICS-07, ANALYTICS-08, UI-02, UI-03 (9) |
+| 1.10 | Backup + age + First Restore Drill (HARD GATE) | OPS-01, OPS-02, OPS-03, OPS-04, OPS-05, OPS-06, OPS-07, OPS-08, TEST-04, COMPL-03, COMPL-04 (11) |
+| 1.11 | Cloudflare Tunnel + M1 Verification Gates | INFRA-09, INFRA-10, SEC-07, COMPL-01, COMPL-02, COMPL-05, COMPL-07, COMPL-08 (8) |
+
+**Total: 75/75 M1 REQs mapped, no orphans, no double-mappings.**
 
 ## Out of M1 Scope (deferred to M2+)
 
@@ -213,4 +297,4 @@ Tento dokument sa upravuje pri:
 - **External ADR/PRD ingestion** (`/gsd-ingest-docs`) — overit konflikty s existujucimi REQs
 
 ---
-*Last updated: 2026-05-10 after research complete (5 docs, 295 KB), based on SUMMARY.md Phase mapping*
+*Last updated: 2026-05-10 after roadmap creation — traceability table is now authoritative 1-to-1 REQ-to-Phase mapping (resolves prior overlapping mappings).*
