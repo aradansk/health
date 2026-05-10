@@ -18,6 +18,8 @@
 ## Decisions
 - [GSD Init Complete](C:/Users/andre/.claude/projects/C--ANDREJ-Claude-Projects-health/memory/project_gsd_init_complete.md) — 12-phase M1 roadmap, 75 REQs, 3 hard gates (RLS test, OCR ≥80% LOINC, restore drill), Fasten=GPL-3.0+SQLite-only, M1 estimate 5-7 weeks
 - BOOTSTRAP.md — handoff decisions z 2026-05-07 (preco samostatny projekt, 2-fazovy plan, stack rozhodnutia)
+- [Tasks Status](C:/Users/andre/.claude/projects/C--ANDREJ-Claude-Projects-health/memory/tasks_status.md) — DONE/PENDING/PLANNED stav uloh, autoritativny zdroj
+- [Work Log](C:/Users/andre/.claude/projects/C--ANDREJ-Claude-Projects-health/memory/work_log.md) — interna historia prac per den (2026-05-07 az 2026-05-10)
 
 ---
 
