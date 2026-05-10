@@ -1,31 +1,31 @@
-﻿# Roadmap: Health â€” M1 (Personal Health Data Aggregator, Single-User Self-Hosted)
+﻿# Roadmap: Health — M1 (Personal Health Data Aggregator, Single-User Self-Hosted)
 
 ## Overview
 
-M1 ships a single-user self-hosted health data aggregator on local PC docker desktop, built on Fasten OnPrem (FHIR system of record, GPL-3.0, SQLite-only) plus a custom Next.js + Postgres 16 analytics layer with **multi-tenant readiness from day one** (`tenant_id` + RLS active, single tenant `andrej` provisioned). The build is **infra-first**: encryption-at-rest, Postgres + RLS scaffolding, and a passing `tests/rls.test.ts` gate land before any application code. ETLs follow easiest-first (Oura â†’ Apple Health â†’ Lab PDF OCR), each writing to Fasten as system of record then mirrored to Postgres. Phase 1.0 is a 2-day spike on Fasten's undocumented ingest API (plan-lock blocked until spike resolves). Phase 1.10 first restore drill is a BLOCKING gate before Phase 1.11 public access via Cloudflare Tunnel.
+M1 ships a single-user self-hosted health data aggregator on local PC docker desktop, built on Fasten OnPrem (FHIR system of record, GPL-3.0, SQLite-only) plus a custom Next.js + Postgres 16 analytics layer with **multi-tenant readiness from day one** (`tenant_id` + RLS active, single tenant `andrej` provisioned). The build is **infra-first**: encryption-at-rest, Postgres + RLS scaffolding, and a passing `tests/rls.test.ts` gate land before any application code. ETLs follow easiest-first (Oura → Apple Health → Lab PDF OCR), each writing to Fasten as system of record then mirrored to Postgres. Phase 1.0 is a 2-day spike on Fasten's undocumented ingest API (plan-lock blocked until spike resolves). Phase 1.10 first restore drill is a BLOCKING gate before Phase 1.11 public access via Cloudflare Tunnel.
 
 **M1 done = CEO can import last 5 years of his own data, search and chart it, with all 20 verification gates passing.**
 
 ## Phases
 
 **Phase Numbering:**
-- Integer phase 1 (M1 milestone â€” 12 sub-phases: 1.0 spike + 1.1 through 1.11)
+- Integer phase 1 (M1 milestone — 12 sub-phases: 1.0 spike + 1.1 through 1.11)
 - Decimal phases (e.g., 1.2.1) reserved for urgent insertions (none yet)
 
-Phases execute in numeric order: 1.0 â†’ 1.1 â†’ 1.2 â†’ 1.3 â†’ 1.4 â†’ 1.5 â†’ 1.6 â†’ 1.7 â†’ 1.8 â†’ 1.9 â†’ 1.10 â†’ 1.11
+Phases execute in numeric order: 1.0 → 1.1 → 1.2 → 1.3 → 1.4 → 1.5 → 1.6 → 1.7 → 1.8 → 1.9 → 1.10 → 1.11
 
-- [ ] **Phase 1.0: Fasten Ingest API Spike** â€” 2-day timeboxed spike validates Fasten's undocumented FHIR Bundle POST endpoint + log redaction baseline; chooses Fasten `:main` digest; outputs `docs/fasten-admin.md`. Plan-lock for downstream phases blocked until spike resolves.
-- [ ] **Phase 1.1: Compose Skeleton + FDE + Vaultwarden Glue** â€” Docker Compose v2 scaffold, full-disk encryption (LUKS/BitLocker) on host volumes, `.env`-driven config, Vaultwarden bw lookup pattern, pre-commit hooks (gitleaks + detect-secrets + license hash check).
-- [ ] **Phase 1.2: Postgres + RLS + Tests + ESLint Rule (HARD GATE)** â€” Postgres 16.13 with `analytics` DB + extensions, Drizzle 0.45.2 schema (tenants, observations, etl_runs, etl_failures, audit_log, consent_log, code_mappings) with `tenant_id NOT NULL` + RLS policies on every multi-tenant table, `withTenant()` wrapper, ESLint rule, pgcrypto column encryption setup, `tests/rls.test.ts` passing in CI. **BLOCKS Phase 1.5+ application code.**
-- [ ] **Phase 1.3: Traefik + Internal Network Routing** â€” Traefik v3.7 reverse proxy with label-driven discovery, dashboard on `127.0.0.1:8080` localhost-only, network segmentation (`health-edge` / `health-app` / `health-etl`), no public exposure.
-- [ ] **Phase 1.4: Fasten Container + Smoke Test + Patient Resolver** â€” Fasten OnPrem digest-pinned via Traefik at `/fasten/*`, single-user admin login (password from Vaultwarden), FHIR Bundle upload UI smoke-tested, programmatic POST integrated in `fhir_client.py`, tenant-to-Patient resolver with `fasten_patient_id` column, idempotent FHIR resource hash pattern, GPL-3.0 architectural firewall validated.
-- [ ] **Phase 1.5: Next.js Analytics Skeleton + Auth.js + Logger Redaction** â€” Next.js 15.2.4 (conservative) App Router shell with Drizzle wired up, Auth.js v4.24.14 single-user login blocking non-public routes, pino logger with allowlist PII redaction, `tests/logger-redaction.test.ts` passing, ESLint rule on log keys, `SENTRY_ENABLED=false` default.
-- [ ] **Phase 1.6: Oura ETL (Easiest Pipeline â€” Validates Framework)** â€” Python 3.13 ETL container with OAuth2 v2 + refresh token rotation, daily cron 06:00 with flock + idempotent re-run, 6-month historical backfill, etl_runs watermark + DLQ patterns established for downstream ETLs.
-- [ ] **Phase 1.7: Apple Health XML ETL + Dedup + Timezone** â€” Streaming `lxml.etree.iterparse` parser for 30-200 MB exports, FHIR Bundle mapper for top HKQuantityType to LOINC + UCUM, source-aware dedup (Watch > iPhone > 3rd-party), DST-week timezone test, `tests/fhir-subject-coherence.test.ts` passing.
-- [ ] **Phase 1.8: Lab PDF OCR + Manual Review Queue (HARD GATE)** â€” Tesseract 5 + Slovak language pack, Unilabs SK template parser as PRIMARY (deterministic), Ollama qwen2.5:7b as FALLBACK, three-pass extraction with disagreement flagging, decimal-comma SK locale, mandatory manual review UI before persist (no auto-ingest of lab values). **Acceptance: â‰¥80% LOINC accuracy on 5 SK lab PDFs OR mandatory review queue 100% confirm before write.**
-- [ ] **Phase 1.9: Custom Analytics Dashboards + Settings UI** â€” Cross-source timeline view (D4 differentiator first slice), unified search across Fasten + Postgres, LOINC-grouped trend charts with reference ranges, Settings page with per-source connector status (Apple Health upload, Oura token entry, Lab PDF upload), backup status panel, tenant-aware routing.
-- [ ] **Phase 1.10: Backup Pipeline + age + First Restore Drill (HARD GATE)** â€” Nightly `pg_dump | age` + `sqlite3 .backup | age` (pipe-only, tmpfs `/tmp`, no plaintext intermediate), rclone push to Backblaze B2 EU / Hetzner Storage Box, age private key in 3 independent custody locations, `tests/restore-smoke.test.ts` + `docs/runbooks/disaster-recovery.md`, Right-to-portability/erasure endpoints. **Acceptance: first quarterly restore drill executed end-to-end. BLOCKS Phase 1.11.**
-- [ ] **Phase 1.11: Cloudflare Tunnel + M1 Verification Gates** â€” cloudflared sidecar enabled, `health.ardan.sk` reachable with TLS terminated at CF edge, 8-week re-pin runbook, cross-host parity check (Win dev â†’ Linux prod), audit_log immutable append-only verified, andrej self-consent recorded, M4 prep scaffolds (next-intl SK strings, self-DPIA, Art. 28 DPA boilerplate). **All 20 M1 verification gates pass.**
+- [ ] **Phase 1.0: Fasten Ingest API Spike** — 2-day timeboxed spike validates Fasten's undocumented FHIR Bundle POST endpoint + log redaction baseline; chooses Fasten `:main` digest; outputs `docs/fasten-admin.md`. Plan-lock for downstream phases blocked until spike resolves.
+- [ ] **Phase 1.1: Compose Skeleton + FDE + Vaultwarden Glue** — Docker Compose v2 scaffold, full-disk encryption (LUKS/BitLocker) on host volumes, `.env`-driven config, Vaultwarden bw lookup pattern, pre-commit hooks (gitleaks + detect-secrets + license hash check).
+- [ ] **Phase 1.2: Postgres + RLS + Tests + ESLint Rule (HARD GATE)** — Postgres 16.13 with `analytics` DB + extensions, Drizzle 0.45.2 schema (tenants, observations, etl_runs, etl_failures, audit_log, consent_log, code_mappings) with `tenant_id NOT NULL` + RLS policies on every multi-tenant table, `withTenant()` wrapper, ESLint rule, pgcrypto column encryption setup, `tests/rls.test.ts` passing in CI. **BLOCKS Phase 1.5+ application code.**
+- [ ] **Phase 1.3: Traefik + Internal Network Routing** — Traefik v3.7 reverse proxy with label-driven discovery, dashboard on `127.0.0.1:8080` localhost-only, network segmentation (`health-edge` / `health-app` / `health-etl`), no public exposure.
+- [ ] **Phase 1.4: Fasten Container + Smoke Test + Patient Resolver** — Fasten OnPrem digest-pinned via Traefik at `/fasten/*`, single-user admin login (password from Vaultwarden), FHIR Bundle upload UI smoke-tested, programmatic POST integrated in `fhir_client.py`, tenant-to-Patient resolver with `fasten_patient_id` column, idempotent FHIR resource hash pattern, GPL-3.0 architectural firewall validated.
+- [ ] **Phase 1.5: Next.js Analytics Skeleton + Auth.js + Logger Redaction** — Next.js 15.2.4 (conservative) App Router shell with Drizzle wired up, Auth.js v4.24.14 single-user login blocking non-public routes, pino logger with allowlist PII redaction, `tests/logger-redaction.test.ts` passing, ESLint rule on log keys, `SENTRY_ENABLED=false` default.
+- [ ] **Phase 1.6: Oura ETL (Easiest Pipeline — Validates Framework)** — Python 3.13 ETL container with OAuth2 v2 + refresh token rotation, daily cron 06:00 with flock + idempotent re-run, 6-month historical backfill, etl_runs watermark + DLQ patterns established for downstream ETLs.
+- [ ] **Phase 1.7: Apple Health XML ETL + Dedup + Timezone** — Streaming `lxml.etree.iterparse` parser for 30-200 MB exports, FHIR Bundle mapper for top HKQuantityType to LOINC + UCUM, source-aware dedup (Watch > iPhone > 3rd-party), DST-week timezone test, `tests/fhir-subject-coherence.test.ts` passing.
+- [ ] **Phase 1.8: Lab PDF OCR + Manual Review Queue (HARD GATE)** — Tesseract 5 + Slovak language pack, Unilabs SK template parser as PRIMARY (deterministic), Ollama qwen2.5:7b as FALLBACK, three-pass extraction with disagreement flagging, decimal-comma SK locale, mandatory manual review UI before persist (no auto-ingest of lab values). **Acceptance: â‰¥80% LOINC accuracy on 5 SK lab PDFs OR mandatory review queue 100% confirm before write.**
+- [ ] **Phase 1.9: Custom Analytics Dashboards + Settings UI** — Cross-source timeline view (D4 differentiator first slice), unified search across Fasten + Postgres, LOINC-grouped trend charts with reference ranges, Settings page with per-source connector status (Apple Health upload, Oura token entry, Lab PDF upload), backup status panel, tenant-aware routing.
+- [ ] **Phase 1.10: Backup Pipeline + age + First Restore Drill (HARD GATE)** — Nightly `pg_dump | age` + `sqlite3 .backup | age` (pipe-only, tmpfs `/tmp`, no plaintext intermediate), rclone push to Backblaze B2 EU / Hetzner Storage Box, age private key in 3 independent custody locations, `tests/restore-smoke.test.ts` + `docs/runbooks/disaster-recovery.md`, Right-to-portability/erasure endpoints. **Acceptance: first quarterly restore drill executed end-to-end. BLOCKS Phase 1.11.**
+- [ ] **Phase 1.11: Cloudflare Tunnel + M1 Verification Gates** — cloudflared sidecar enabled, `health.ardan.sk` reachable with TLS terminated at CF edge, 8-week re-pin runbook, cross-host parity check (Win dev → Linux prod), audit_log immutable append-only verified, andrej self-consent recorded, M4 prep scaffolds (next-intl SK strings, self-DPIA, Art. 28 DPA boilerplate). **All 20 M1 verification gates pass.**
 
 ## Phase Details
 
@@ -43,7 +43,7 @@ Phases execute in numeric order: 1.0 â†’ 1.1 â†’ 1.2 â†’ 1.3 â�
 **UI hint**: no
 
 ### Phase 1.1: Compose Skeleton + FDE + Vaultwarden Glue
-**Goal**: Establish encrypted, version-pinned Docker Compose v2 stack scaffold with strict secret hygiene before any service runs. Encryption cannot be retrofitted for PII Tier 1 â€” it ships first.
+**Goal**: Establish encrypted, version-pinned Docker Compose v2 stack scaffold with strict secret hygiene before any service runs. Encryption cannot be retrofitted for PII Tier 1 — it ships first.
 **Depends on**: Phase 1.0
 **Requirements**: INFRA-01, INFRA-02, INFRA-03, INFRA-04, INFRA-05, INFRA-06, INFRA-07, INFRA-08, SEC-01, SEC-06, SEC-08
 **Success Criteria** (what must be TRUE):
@@ -56,7 +56,7 @@ Phases execute in numeric order: 1.0 â†’ 1.1 â†’ 1.2 â†’ 1.3 â�
 **UI hint**: no
 
 ### Phase 1.2: Postgres + RLS + Tests + ESLint Rule (HARD GATE)
-**Goal**: Ship the multi-tenant data foundation that every later phase depends on: Postgres 16 with `analytics` DB, RLS-enforced schema with `tenant_id NOT NULL` everywhere, transactional `withTenant()` wrapper, ESLint guardrail, and a passing `tests/rls.test.ts` proving cross-tenant isolation. **This is the project's most important gate â€” the SaaS pivot survival depends on it never breaking.**
+**Goal**: Ship the multi-tenant data foundation that every later phase depends on: Postgres 16 with `analytics` DB, RLS-enforced schema with `tenant_id NOT NULL` everywhere, transactional `withTenant()` wrapper, ESLint guardrail, and a passing `tests/rls.test.ts` proving cross-tenant isolation. **This is the project's most important gate — the SaaS pivot survival depends on it never breaking.**
 **Depends on**: Phase 1.1
 **Requirements**: DATA-01, DATA-03, DATA-04, DATA-05, DATA-06, DATA-08, AUTH-03, AUTH-04, AUTH-05, TEST-01
 **Success Criteria** (what must be TRUE):
@@ -64,7 +64,7 @@ Phases execute in numeric order: 1.0 â†’ 1.1 â†’ 1.2 â†’ 1.3 â�
   2. `pg_tables` query asserting every multi-tenant table has `rowsecurity = true` returns 0 violating rows (CI gate); every multi-tenant table has `tenant_id UUID NOT NULL` constraint verified by schema introspection.
   3. ESLint custom rule blocks any `db.{select,insert,update,delete}` call outside a lexical `withTenant()` scope and fails CI on bypass attempt; connection acquire/release hook resets `app.current_tenant` (defense-in-depth verified by integration test).
   4. Drizzle 0.45.2 schema migration creates `tenants`, `observations`, `etl_runs`, `etl_failures`, `audit_log`, `consent_log`, `code_mappings` with `pgPolicy` definitions; default tenant `andrej` provisioned at init; default-deny policy (`USING (false)`) verified to block queries when tenant context is unset.
-  5. pgcrypto column-level encryption round-trip works for `observations.provider_name` and `observations.freetext_notes` using `pgp_sym_encrypt` (authenticated); ETL state lives only in `etl_runs` (`last_successful_observed_at` watermark) and `etl_failures` (DLQ) Postgres tables â€” no on-disk state files.
+  5. pgcrypto column-level encryption round-trip works for `observations.provider_name` and `observations.freetext_notes` using `pgp_sym_encrypt` (authenticated); ETL state lives only in `etl_runs` (`last_successful_observed_at` watermark) and `etl_failures` (DLQ) Postgres tables — no on-disk state files.
 **Plans**: TBD
 **UI hint**: no
 
@@ -93,7 +93,7 @@ Phases execute in numeric order: 1.0 â†’ 1.1 â†’ 1.2 â†’ 1.3 â�
 **UI hint**: no
 
 ### Phase 1.5: Next.js Analytics Skeleton + Auth.js + Logger Redaction
-**Goal**: Stand up the custom analytics layer with logger-first ordering â€” `tests/logger-redaction.test.ts` lands before any code that might log a FHIR resource. Auth.js single-user login blocks all non-public routes; multi-tenant `withTenant()` wrapper proven end-to-end.
+**Goal**: Stand up the custom analytics layer with logger-first ordering — `tests/logger-redaction.test.ts` lands before any code that might log a FHIR resource. Auth.js single-user login blocks all non-public routes; multi-tenant `withTenant()` wrapper proven end-to-end.
 **Depends on**: Phase 1.2 (RLS gate must pass), Phase 1.4 (Fasten reachable)
 **Requirements**: ANALYTICS-01, AUTH-02, SEC-02, SEC-03, SEC-04, TEST-03
 **Success Criteria** (what must be TRUE):
@@ -104,8 +104,8 @@ Phases execute in numeric order: 1.0 â†’ 1.1 â†’ 1.2 â†’ 1.3 â�
 **Plans**: TBD
 **UI hint**: yes
 
-### Phase 1.6: Oura ETL (Easiest Pipeline â€” Validates Framework)
-**Goal**: Establish the ETL framework (etl_runs watermark, idempotent FHIR Bundle POST, DLQ, OAuth2 token refresh) using Oura as the easiest pipeline â€” well-documented JSON API, no OCR. Patterns set here are reused by Apple Health (1.7) and Lab PDF (1.8).
+### Phase 1.6: Oura ETL (Easiest Pipeline — Validates Framework)
+**Goal**: Establish the ETL framework (etl_runs watermark, idempotent FHIR Bundle POST, DLQ, OAuth2 token refresh) using Oura as the easiest pipeline — well-documented JSON API, no OCR. Patterns set here are reused by Apple Health (1.7) and Lab PDF (1.8).
 **Depends on**: Phase 1.4, Phase 1.5
 **Requirements**: ETL-01, ETL-05, ETL-06, ETL-07, DATA-08, DATA-09
 **Success Criteria** (what must be TRUE):
@@ -129,11 +129,11 @@ Phases execute in numeric order: 1.0 â†’ 1.1 â†’ 1.2 â†’ 1.3 â�
 **UI hint**: no
 
 ### Phase 1.8: Lab PDF OCR + Manual Review Queue (HARD GATE)
-**Goal**: Deliver the highest-risk ETL â€” Slovak Unilabs lab PDF parsing with mandatory human review before persist. Per-template parser is PRIMARY; Tesseract+Ollama is FALLBACK. **No auto-ingest of medical values; OCR ~85% ceiling means wrong CRP/glucose can mislead clinical decisions.**
+**Goal**: Deliver the highest-risk ETL — Slovak Unilabs lab PDF parsing with mandatory human review before persist. Per-template parser is PRIMARY; Tesseract+Ollama is FALLBACK. **No auto-ingest of medical values; OCR ~85% ceiling means wrong CRP/glucose can mislead clinical decisions.**
 **Depends on**: Phase 1.7
 **Requirements**: ETL-08, ETL-09, ETL-10, UI-01, TEST-05
 **Success Criteria** (what must be TRUE):
-  1. The Unilabs SK template parser (deterministic column-region heuristic) extracts patient, date, and lab fields from a sample PDF with structured output mapped to FHIR Observation + LOINC code via `code_mappings`; decimal-comma SK locale and unit normalization (mmol/L vs mg/dL â†’ UCUM canonical) verified on test samples.
+  1. The Unilabs SK template parser (deterministic column-region heuristic) extracts patient, date, and lab fields from a sample PDF with structured output mapped to FHIR Observation + LOINC code via `code_mappings`; decimal-comma SK locale and unit normalization (mmol/L vs mg/dL → UCUM canonical) verified on test samples.
   2. Three-pass extraction (Tesseract result / Ollama qwen2.5:7b result / regex-based result) flags disagreements; failed extractions land in DLQ with original PDF retained for manual reprocessing.
   3. **Acceptance gate met**: `research/lab-pdf-ocr-bench.md` checked in showing â‰¥80% LOINC mapping accuracy on 5 real Slovak Unilabs PDFs **OR** the manual review queue enforces 100% confirm-before-persist (no auto-ingest of any lab value into Fasten).
   4. Manual review UI shows the original PDF side-by-side with extracted FHIR fields; user MUST click confirm or reject for each extraction before any value is persisted to Fasten; rejected items return to a queue for re-extraction or manual entry.
@@ -142,7 +142,7 @@ Phases execute in numeric order: 1.0 â†’ 1.1 â†’ 1.2 â†’ 1.3 â�
 **UI hint**: yes
 
 ### Phase 1.9: Custom Analytics Dashboards + Settings UI
-**Goal**: Deliver the user-visible analytics surface â€” cross-source timeline view (D4 differentiator first slice), unified search, LOINC trend charts, settings page with per-source connector status. Closes the M1 user value loop: data ingested in 1.6/1.7/1.8 becomes observable here.
+**Goal**: Deliver the user-visible analytics surface — cross-source timeline view (D4 differentiator first slice), unified search, LOINC trend charts, settings page with per-source connector status. Closes the M1 user value loop: data ingested in 1.6/1.7/1.8 becomes observable here.
 **Depends on**: Phase 1.5, Phase 1.6, Phase 1.7, Phase 1.8
 **Requirements**: ANALYTICS-02, ANALYTICS-03, ANALYTICS-04, ANALYTICS-05, ANALYTICS-06, ANALYTICS-07, ANALYTICS-08, UI-02, UI-03
 **Success Criteria** (what must be TRUE):
@@ -155,7 +155,7 @@ Phases execute in numeric order: 1.0 â†’ 1.1 â†’ 1.2 â†’ 1.3 â�
 **UI hint**: yes
 
 ### Phase 1.10: Backup Pipeline + age + First Restore Drill (HARD GATE)
-**Goal**: Ship encrypted off-site backups with pipe-only encryption (no plaintext intermediate), age private key in 3 independent custody locations, and **execute the first quarterly restore drill end-to-end**. This phase BLOCKS public access in Phase 1.11 â€” backups must work before the system goes online.
+**Goal**: Ship encrypted off-site backups with pipe-only encryption (no plaintext intermediate), age private key in 3 independent custody locations, and **execute the first quarterly restore drill end-to-end**. This phase BLOCKS public access in Phase 1.11 — backups must work before the system goes online.
 **Depends on**: Phase 1.9 (data exists to back up)
 **Requirements**: OPS-01, OPS-02, OPS-03, OPS-04, OPS-05, OPS-06, OPS-07, OPS-08, TEST-04, COMPL-03, COMPL-04
 **Success Criteria** (what must be TRUE):
@@ -174,7 +174,7 @@ Phases execute in numeric order: 1.0 â†’ 1.1 â†’ 1.2 â†’ 1.3 â�
 **Requirements**: INFRA-09, INFRA-10, SEC-07, COMPL-01, COMPL-02, COMPL-05, COMPL-07, COMPL-08
 **Success Criteria** (what must be TRUE):
   1. Cloudflare Tunnel sidecar enabled, `health.ardan.sk` reachable from outside the LAN with TLS terminated at Cloudflare edge (origin Traefik = HTTP plain, documented as accepted risk in `docs/architecture/network-tls.md`); CF Tunnel mTLS for origin-to-CF documented.
-  2. 8-week re-pin cadence runbook for Fasten `:main` digest checked in: who runs the re-pin, rollback procedure, kompatibility check; cross-host parity test (Win dev â†’ Linux prod) passes for line endings (LF in containers), case-sensitive paths, and file mode preservation.
+  2. 8-week re-pin cadence runbook for Fasten `:main` digest checked in: who runs the re-pin, rollback procedure, kompatibility check; cross-host parity test (Win dev → Linux prod) passes for line endings (LF in containers), case-sensitive paths, and file mode preservation.
   3. `consent_log` schema in place with andrej self-consent baseline recorded (timestamp, version hash, per-data-category boolean: wearable/lab/manual); `audit_log` immutable append-only verified by an attempted UPDATE failing at the table-grant level; every read/write produces an audit row.
   4. M4 prep scaffolds present: `next-intl` integration stub with `sk` locale strings for consent UI text, self-DPIA document at `docs/compliance/dpia-self.md` (M1 baseline, EDPB template flagged for re-author when consultation closes 2026-06-09), Art. 28 DPA boilerplate template at `docs/compliance/dpa-template.md` (Hetzner/Cloudflare/Backblaze placeholders).
   5. **All 20 M1 verification gates pass** (per REQUIREMENTS.md Validation Gates): RLS test, FHIR subject coherence, logger redaction, restore smoke + first drill executed, OCR â‰¥80% accuracy or review-queue gate, `pg_tables` RLS query 0 rows, ESLint custom rules, age key custody, disaster-recovery runbook, CF Tunnel reachability, Apple Health re-import dedup, Oura idempotent re-run, lab PDF review-queue 100% confirm, layered encryption verification, Vaultwarden bw fetch, cross-host parity, consent_log + andrej baseline, audit_log immutability, deterministic backup output, withTenant() ESLint enforcement.
@@ -184,7 +184,7 @@ Phases execute in numeric order: 1.0 â†’ 1.1 â†’ 1.2 â†’ 1.3 â�
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1.0 â†’ 1.1 â†’ 1.2 â†’ 1.3 â†’ 1.4 â†’ 1.5 â†’ 1.6 â†’ 1.7 â†’ 1.8 â†’ 1.9 â†’ 1.10 â†’ 1.11
+Phases execute in numeric order: 1.0 → 1.1 → 1.2 → 1.3 → 1.4 → 1.5 → 1.6 → 1.7 → 1.8 → 1.9 → 1.10 → 1.11
 
 **HARD GATES** (block downstream phases if not passing):
 - Phase 1.2 `tests/rls.test.ts` BLOCKS Phase 1.5+ application code
@@ -206,6 +206,120 @@ Phases execute in numeric order: 1.0 â†’ 1.1 â†’ 1.2 â†’ 1.3 â�
 | 1.10 Backup Pipeline + age + First Restore Drill | 0/TBD | Not started | - |
 | 1.11 Cloudflare Tunnel + M1 Verification Gates | 0/TBD | Not started | - |
 
+## REQ Coverage Map
+
+**v1 (M1) requirement coverage:** 75/75 mapped to phases (75 distinct REQ-IDs across INFRA/DATA/AUTH/ETL/ANALYTICS/SEC/OPS/TEST/UI/COMPL).
+
+| Phase | Requirements |
+|-------|--------------|
+| 1.0 | INFRA-06, DATA-02 (2) |
+| 1.1 | INFRA-01, INFRA-02, INFRA-03, INFRA-04, INFRA-05, INFRA-06, INFRA-07, INFRA-08, SEC-01, SEC-06, SEC-08 (11) |
+| 1.2 | DATA-01, DATA-03, DATA-04, DATA-05, DATA-06, DATA-08, AUTH-03, AUTH-04, AUTH-05, TEST-01 (10) |
+| 1.3 | INFRA-08, SEC-05 (2 — INFRA-08 shared with 1.1) |
+| 1.4 | DATA-02, DATA-07, DATA-09, AUTH-01, COMPL-06 (5 — DATA-02 shared with 1.0) |
+| 1.5 | ANALYTICS-01, AUTH-02, SEC-02, SEC-03, SEC-04, TEST-03 (6) |
+| 1.6 | ETL-01, ETL-05, ETL-06, ETL-07, DATA-08, DATA-09 (6 — DATA-08 shared with 1.2, DATA-09 shared with 1.4) |
+| 1.7 | ETL-02, ETL-03, ETL-04, DATA-10, TEST-02 (5) |
+| 1.8 | ETL-08, ETL-09, ETL-10, UI-01, TEST-05 (5) |
+| 1.9 | ANALYTICS-02..08, UI-02, UI-03 (9) |
+| 1.10 | OPS-01..08, TEST-04, COMPL-03, COMPL-04 (11) |
+| 1.11 | INFRA-09, INFRA-10, SEC-07, COMPL-01, COMPL-02, COMPL-05, COMPL-07, COMPL-08 (8) |
+
+**Coverage validation per section:**
+
+- **INFRA (10):** 01-08 → 1.1 | 06 → 1.0+1.1 | 08 → 1.1+1.3 | 09,10 → 1.11 ✓
+- **DATA (10):** 01,03,04,05,06,08 → 1.2 | 02 → 1.0+1.4 | 07 → 1.4 | 09 → 1.4+1.6 | 10 → 1.7 ✓
+- **AUTH (5):** 01 → 1.4 | 02 → 1.5 | 03,04,05 → 1.2 ✓
+- **ETL (10):** 01,05,06,07 → 1.6 | 02,03,04 → 1.7 | 08,09,10 → 1.8 ✓
+- **ANALYTICS (8):** 01 → 1.5 | 02-08 → 1.9 ✓
+- **SEC (8):** 01,08 → 1.1 | 02,03,04 → 1.5 | 05 → 1.3 | 06 → 1.1 | 07 → 1.11 ✓
+- **OPS (8):** 01-08 → 1.10 ✓
+- **TEST (5):** 01 → 1.2 | 02 → 1.7 | 03 → 1.5 | 04 → 1.10 | 05 → 1.8 ✓
+- **UI (3):** 01 → 1.8 | 02,03 → 1.9 ✓
+- **COMPL (8):** 01,05 → 1.11 | 03,04 → 1.10 | 06 → 1.4 | 02 (Slovak consent UI scaffold), 07 (DPIA), 08 (Art. 28 DPA) → 1.11 as M3/M4 prep scaffolds (per REQUIREMENTS.md these are explicitly M3/M4 deliverables; M1 lands placeholder/template-only versions in 1.11) ✓
+
+**Mapping deviations from REQUIREMENTS.md REQ→Phase mapping table:**
+
+1. **DATA-07** (cross-DB linking via `fasten_resource_id` column + Fasten REST API ID lookup) — not explicitly in mapping table. Resolved: mapped to **Phase 1.4** because the cross-DB lookup contract lands when `fhir_client.py` does Fasten REST round-trip. No GAP.
+2. **SEC-06** (secret access tenant-namespaced key — `bw get tenant/<id>/<secret>` pattern, M1 = `bw get default/<secret>`) — not in mapping table. Resolved: mapped to **Phase 1.1** because Vaultwarden bw glue establishes the M1 default pattern; M4 prep tenant-namespacing as forward reference. No GAP.
+3. **COMPL-02 / COMPL-07 / COMPL-08** — REQUIREMENTS.md "Out of M1 Scope" defers Slovak consent UI to M3 and DPIA + Art. 28 DPA to M4. Resolved: M1 Phase 1.11 lands **scaffolds only** (next-intl `sk` strings stub, self-DPIA baseline doc, Art. 28 DPA boilerplate template) so SaaS pivot is scaffold-ready. Full implementations defer to M3/M4 milestones. No GAP for M1 (scaffold deliverable).
+
+**M1 GAP count: 0** — all 75 v1 REQ-IDs mapped to at least one phase.
+
+## Cross-Phase Dependencies
+
+```
+1.0 (spike) ──────────────────┐
+                              ▼
+1.1 (compose+FDE) ──► 1.2 (★ HARD GATE: RLS) ──► 1.3 (Traefik)
+                              │                       │
+                              ▼                       ▼
+                              │                  1.4 (Fasten + Patient resolver) ◄── consumes 1.0 spike output
+                              │                       │
+                              ▼                       ▼
+                         1.5 (Next.js + Auth.js + logger redaction)
+                              │
+            ┌─────────────────┼─────────────────┐
+            ▼                 ▼                 ▼
+      1.6 (Oura ETL) ──► 1.7 (Apple Health) ──► 1.8 (Lab OCR + manual review)
+                              │
+                              ▼
+                         1.9 (Custom analytics dashboards)
+                              │
+                              ▼
+                         1.10 (Backup + age + first restore drill — HARD GATE)
+                              │
+                              ▼
+                         1.11 (CF Tunnel + M1 sign-off)
+```
+
+**Critical paths:**
+- 1.0 → 1.4 (spike output unblocks Fasten ingest API design)
+- 1.2 (★ HARD GATE) → 1.5/1.6/1.7/1.8/1.9 (RLS active before any DB write code)
+- 1.4 → 1.6/1.7/1.8 (`fhir_client.py` library used by all 3 ETLs)
+- 1.6 → 1.7 → 1.8 (ETL framework patterns reused easiest-to-hardest)
+- 1.5 → 1.9 (Next.js shell needed for UI surfaces)
+- 1.10 (HARD GATE: first restore drill) → 1.11 (public exposure must have working backup + restore)
+
+**No backward dependencies.** No phase depends on a later-numbered phase.
+
+## M1 → M2 → M4 Forward References
+
+Per REQUIREMENTS.md "Out of M1 Scope" section:
+
+**M2 — Hardening, DICOM, DNA, expanded labs:**
+- DICOM viewer integration (OHIF + Orthanc), `data/dicom/` pipeline
+- DNA raw upload + lokálny GWAS lookup (SNPedia + ClinVar — NIE cloud)
+- Expanded lab template library (Synlab, Alpha medical, ProCare, 1-2 CZ/DE labs)
+- Vaultwarden bw sidecar replaces manual `.env` for production secrets
+- Tags + notes + dashboards customization
+- Full-text search via `pg_trgm`
+- Observability stack (Loki+Grafana / Better Stack EU)
+
+**M3 — i18n + cross-source correlation depth:**
+- `next-intl` SK/CZ/DE/EN i18n + COMPL-02 Slovak consent UI scaffold full implementation
+- D4 cross-source correlation full (Oura HRV + Apple sleep + lab cortisol on jednom charte)
+- Move to Hetzner CX22 ak PC reliability painful
+
+**M4 — SaaS pivot prep:**
+- Per-tenant Fasten Docker container orchestration (Traefik subdomain routing, `compose.tenant.template.yaml`, provisioning automation, M4 benchmark of tenants/CX22)
+- Authentik SSO front of všetkých subdomains s per-tenant realm
+- DPIA finalization per EDPB template (COMPL-07 — consultation closes 2026-06-09, finálna template Q4 2026)
+- Two-tier consent UI (Tier 1 Art. 6(1)(b), Tier 2 Art. 9(2)(a))
+- Art. 28 DPA signed s Hetzner + Cloudflare + Backblaze (COMPL-08)
+- Custom code license decision (AGPL-3.0 odporúčané pre custom analytics layer)
+- GPL-3.0 lawyer review (COMPL-06 firewall validation)
+
+**M5 — First paying tenants + scaling:**
+- Stripe / invoice billing
+- pgbackrest pre PITR
+- CX22 → CX32 ak RAM ceiling
+
+**Multi-tenant orchestration design choices in M1 (per ARCHITECTURE.md A3 + A4):**
+- `tenant_id` columns + RLS active in M1 single-tenant (Phase 1.2) → M4 SaaS = swap auth provider + clone Fasten container per tenant + iterate cron, NOT a rebuild
+- `withTenant()` wrapper mandatory in M1 (Phase 1.2 + 1.5 ESLint enforced) → M4 multi-tenant = no code refactor, just provisioning
+- Tenant header badge in dashboard M1 (Phase 1.9) = "andrej" → M4 = tenant resolved from JWT/subdomain
+
 ---
 
-*Created: 2026-05-10. Source: REQUIREMENTS.md REQâ†’Phase mapping (authoritative) + research/{SUMMARY,STACK,FEATURES,ARCHITECTURE,PITFALLS}.md. Granularity: fine (12 sub-phases, 5-10 plans each TBD).*
+*Created: 2026-05-10. Source: REQUIREMENTS.md REQ→Phase mapping (authoritative) + research/{SUMMARY,STACK,FEATURES,ARCHITECTURE,PITFALLS}.md. Granularity: fine (12 sub-phases, 5-10 plans each TBD).*
