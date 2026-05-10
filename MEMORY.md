@@ -16,7 +16,8 @@
 *(CEO pravidla pre Health scope, lessons learned z deploymentov)*
 
 ## Decisions
-*(kluove rozhodnutia — viď BOOTSTRAP.md pre handoff decisions z 2026-05-07)*
+- [GSD Init Complete](C:/Users/andre/.claude/projects/C--ANDREJ-Claude-Projects-health/memory/project_gsd_init_complete.md) — 12-phase M1 roadmap, 75 REQs, 3 hard gates (RLS test, OCR ≥80% LOINC, restore drill), Fasten=GPL-3.0+SQLite-only, M1 estimate 5-7 weeks
+- BOOTSTRAP.md — handoff decisions z 2026-05-07 (preco samostatny projekt, 2-fazovy plan, stack rozhodnutia)
 
 ---
 
