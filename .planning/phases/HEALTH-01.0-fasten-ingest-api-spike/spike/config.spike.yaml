@@ -1,0 +1,43 @@
+######################################################################
+# spike/config.spike.yaml — THROWAWAY Fasten config for the Phase 1.0 spike.
+#
+# Bind-mounted into the container at /opt/fasten/config/config.yaml. This is the
+# OQ2 fallback explicitly anticipated by RESEARCH.md: the pinned :main digest does
+# NOT honour FASTEN_<SECTION>_<KEY> env-vars for these nested keys, and ships a
+# default config that enables database.encryption WITHOUT a key — which makes
+# Fasten boot in STANDBY mode (only the first-run wizard SPA + /api/health are
+# served; the REST API is not exposed until an encryption key is present).
+#
+# Every secret here is THROWAWAY (CLAUDE.md PII Tier 1) — never the production
+# Vaultwarden value. jwt.issuer.key overrides the published insecure default
+# "thisismysupersecuressessionsecretlength" (RESEARCH.md Pitfall 1).
+######################################################################
+version: 1
+
+web:
+  listen:
+    port: 8080
+    host: 0.0.0.0
+    basepath: ''
+    https:
+      enabled: false          # disable self-signed HTTPS for the spike — plain HTTP on :8080
+      certDir: "certs"
+      sharedDir: "certs/shared"
+  src:
+    frontend:
+      path: /opt/fasten/web
+
+database:
+  encryption:
+    enabled: true
+    key: 'spike-throwaway-32byte-encryption-key-not-prod'   # THROWAWAY — leaves STANDBY mode
+  type: 'sqlite'
+  location: '/opt/fasten/db/fasten.db'
+
+log:
+  file: ''
+  level: warn
+
+jwt:
+  issuer:
+    key: "spike-throwaway-key-not-prod"   # THROWAWAY — overrides insecure published default

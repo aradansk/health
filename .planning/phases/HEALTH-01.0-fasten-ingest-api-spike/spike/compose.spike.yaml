@@ -25,10 +25,15 @@ services:
     ports:
       - "18081:8080"            # host 18081 -> container 8080 (host 8080/18080 occupied at spike time)
     environment:
-      - FASTEN_JWT_ISSUER_KEY=spike-throwaway-key-not-prod   # THROWAWAY — overrides insecure default
-      - FASTEN_LOG_LEVEL=INFO   # second audit pass flips this to WARN
+      - FASTEN_JWT_ISSUER_KEY=spike-throwaway-key-not-prod   # THROWAWAY (env override NOT honoured by this digest — see config.spike.yaml)
+      - FASTEN_LOG_LEVEL=INFO   # env override NOT honoured by this digest — log.level set in config.spike.yaml
     volumes:
       - fasten-spike-db:/opt/fasten/db   # Fasten database.location = /opt/fasten/db/fasten.db
+      # OQ2 RESOLVED: this pinned :main digest does NOT honour FASTEN_<SECTION>_<KEY>
+      # env-vars for nested keys AND ships database.encryption enabled without a key
+      # (=> STANDBY mode, REST API not served). Bind-mounted config.yaml is the
+      # working form (provides encryption.key + jwt.issuer.key + disables HTTPS).
+      - ./config.spike.yaml:/opt/fasten/config/config.yaml:ro
 
 volumes:
   fasten-spike-db:

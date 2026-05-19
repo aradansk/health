@@ -89,6 +89,25 @@ def build_bundle_bytes() -> bytes:
 
 
 def signin(client: httpx.Client) -> str:
+    """Provision admin (first signup => admin) then sign in.
+
+    OQ resolved empirically: the pinned :main digest serves the REST API at base
+    path /api (NOT /web/api — that was a STANDBY-mode SPA artifact), HTTP only
+    (config.spike.yaml disables the self-signed HTTPS), and only AFTER the
+    database encryption key leaves STANDBY mode. The first /api/auth/signup
+    creates the user; on reruns signup 4xx/409s harmlessly and signin is used.
+    Both return the success envelope {"success":true,"data":"<session JWT>"}.
+    """
+    su = client.post(
+        f"{BASE}/api/auth/signup",
+        json={"username": ADMIN_USER, "password": ADMIN_PASS},
+    )
+    print(f"  [A0] POST /api/auth/signup -> {su.status_code} (first user => admin)")
+    if su.status_code == 200:
+        body = su.json()
+        if body.get("success") and body.get("data"):
+            return body["data"]
+    # User already exists (rerun) or signup not needed -> sign in.
     r = client.post(
         f"{BASE}/api/auth/signin",
         json={"username": ADMIN_USER, "password": ADMIN_PASS},
