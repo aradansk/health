@@ -16,7 +16,7 @@ Requirements pre uvodny release MVP. Kazdy sa mapuje na fazu v ROADMAP.md. Zacia
 - [ ] **INFRA-03**: `.env`-driven config — DB URLs, Fasten paths, Cloudflare tunnel token placeholder; `.env` vo `.gitignore`, `.env.example` len placeholdery
 - [ ] **INFRA-04**: Read-only bind mounts pre `data/imports/` (Apple Health zip drop) a `data/dicom/` (M2) cez `:ro` flag
 - [ ] **INFRA-05**: Vaultwarden `bw` CLI sidecar init container — populates env vars at container startup; NIKDY bake secrets do images
-- [ ] **INFRA-06**: Image pinning by digest — Fasten `:main@sha256:<digest>` (NIE `v1.1.3` ani `:latest`), Postgres `16.13-bookworm`, Traefik `v3.7.0`, Vaultwarden `1.36.0`
+- [x] **INFRA-06**: Image pinning by digest — Fasten `:main@sha256:<digest>` (NIE `v1.1.3` ani `:latest`), Postgres `16.13-bookworm`, Traefik `v3.7.0`, Vaultwarden `1.36.0`
 - [ ] **INFRA-07**: Container HEALTHCHECK directive per service + `restart: unless-stopped`
 - [ ] **INFRA-08**: Internal Docker networks segregated — `health-edge` (Traefik + cloudflared), `health-app` (Fasten, Next.js, Postgres), `health-etl` (workers + Postgres). Network policy: `health-app` a `health-etl` NESMU byt reachable z `health-edge` okrem Traefik routes
 - [ ] **INFRA-09**: 8-week re-pin cadence runbook pre Fasten `:main` digest — kto ho updatuje, rollback procedure, kompatibilita check
@@ -25,7 +25,7 @@ Requirements pre uvodny release MVP. Kazdy sa mapuje na fazu v ROADMAP.md. Zacia
 ### DATA — Postgres analytics, Fasten SQLite, schema, RLS
 
 - [ ] **DATA-01**: Postgres 16.13-bookworm container s `analytics` DB + extensions `pgcrypto`, `uuid-ossp`, `citext`
-- [ ] **DATA-02**: Fasten OnPrem digest-pinned, SQLite-only (upstream Postgres support BROKEN per `config.yaml` 2026-05); SQLite file na encrypted host volume
+- [x] **DATA-02**: Fasten OnPrem digest-pinned, SQLite-only (upstream Postgres support BROKEN per `config.yaml` 2026-05); SQLite file na encrypted host volume
 - [ ] **DATA-03**: Drizzle 0.45.2 schema — tabulky `tenants`, `observations` (mirror Fasten resources), `etl_runs`, `etl_failures` (DLQ), `audit_log` (append-only), `consent_log`, `code_mappings`; M2 pridat `tags`, `notes`, `dna_findings`, `dicom_metadata`
 - [ ] **DATA-04**: Vsetky multi-tenant tabulky maju `tenant_id UUID NOT NULL` constraint (NULL by bypass-ol RLS comparison `tenant_id = current_setting(...)`, fail-closed pattern)
 - [ ] **DATA-05**: RLS active v M1 single-tenant — `pgPolicy` per multi-tenant tabulku, default tenant `andrej` provisioned pri init, default policy denies (`USING (false)`) ked tenant context unset
@@ -125,13 +125,13 @@ Every M1 requirement maps to exactly one phase in `ROADMAP.md`. Coverage: 75/75 
 | INFRA-03 | 1.1 | Pending |
 | INFRA-04 | 1.1 | Pending |
 | INFRA-05 | 1.1 | Pending |
-| INFRA-06 | 1.0 | Pending |
+| INFRA-06 | 1.0 | Complete |
 | INFRA-07 | 1.1 | Pending |
 | INFRA-08 | 1.3 | Pending |
 | INFRA-09 | 1.11 | Pending |
 | INFRA-10 | 1.11 | Pending |
 | DATA-01 | 1.2 | Pending |
-| DATA-02 | 1.4 | Pending |
+| DATA-02 | 1.4 | Complete |
 | DATA-03 | 1.2 | Pending |
 | DATA-04 | 1.2 | Pending |
 | DATA-05 | 1.2 | Pending |

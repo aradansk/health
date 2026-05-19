@@ -14,7 +14,7 @@ M1 ships a single-user self-hosted health data aggregator on local PC docker des
 
 Phases execute in numeric order: 1.0 → 1.1 → 1.2 → 1.3 → 1.4 → 1.5 → 1.6 → 1.7 → 1.8 → 1.9 → 1.10 → 1.11
 
-- [ ] **Phase 1.0: Fasten Ingest API Spike** — 2-day timeboxed spike validates Fasten's undocumented FHIR Bundle POST endpoint + log redaction baseline; chooses Fasten `:main` digest; outputs `docs/fasten-admin.md`. Plan-lock for downstream phases blocked until spike resolves.
+- [x] **Phase 1.0: Fasten Ingest API Spike** — 2-day timeboxed spike validates Fasten's undocumented FHIR Bundle POST endpoint + log redaction baseline; chooses Fasten `:main` digest; outputs `docs/fasten-admin.md`. Plan-lock for downstream phases blocked until spike resolves. (completed 2026-05-19)
 - [ ] **Phase 1.1: Compose Skeleton + FDE + Vaultwarden Glue** — Docker Compose v2 scaffold, full-disk encryption (LUKS/BitLocker) on host volumes, `.env`-driven config, Vaultwarden bw lookup pattern, pre-commit hooks (gitleaks + detect-secrets + license hash check).
 - [ ] **Phase 1.2: Postgres + RLS + Tests + ESLint Rule (HARD GATE)** — Postgres 16.13 with `analytics` DB + extensions, Drizzle 0.45.2 schema (tenants, observations, etl_runs, etl_failures, audit_log, consent_log, code_mappings) with `tenant_id NOT NULL` + RLS policies on every multi-tenant table, `withTenant()` wrapper, ESLint rule, pgcrypto column encryption setup, `tests/rls.test.ts` passing in CI. **BLOCKS Phase 1.5+ application code.**
 - [ ] **Phase 1.3: Traefik + Internal Network Routing** — Traefik v3.7 reverse proxy with label-driven discovery, dashboard on `127.0.0.1:8080` localhost-only, network segmentation (`health-edge` / `health-app` / `health-etl`), no public exposure.
@@ -194,7 +194,7 @@ Phases execute in numeric order: 1.0 → 1.1 → 1.2 → 1.3 → 1.4 → 1.5 →
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1.0 Fasten Ingest API Spike | 0/1 | Not started | - |
+| 1.0 Fasten Ingest API Spike | 1/1 | Complete    | 2026-05-19 |
 | 1.1 Compose Skeleton + FDE + Vaultwarden Glue | 0/TBD | Not started | - |
 | 1.2 Postgres + RLS + Tests + ESLint Rule | 0/TBD | Not started | - |
 | 1.3 Traefik + Internal Network Routing | 0/TBD | Not started | - |
