@@ -36,7 +36,7 @@ database:
 
 log:
   file: ''
-  level: warn
+  level: INFO                  # second audit pass flips this to: warn
 
 jwt:
   issuer:
