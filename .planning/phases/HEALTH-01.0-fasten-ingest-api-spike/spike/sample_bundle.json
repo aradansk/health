@@ -1,0 +1,48 @@
+{
+  "resourceType": "Bundle",
+  "type": "collection",
+  "entry": [
+    {
+      "fullUrl": "urn:uuid:patient-canary-0001",
+      "resource": {
+        "resourceType": "Patient",
+        "id": "patient-canary-0001",
+        "name": [
+          {
+            "use": "official",
+            "family": "ZZZ-PII-CANARY-0001",
+            "given": ["ZZZ-PII-CANARY-0001"]
+          }
+        ],
+        "gender": "unknown"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:observation-canary-0001",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "observation-canary-0001",
+        "status": "final",
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "00000-0",
+              "display": "Synthetic spike canary observation"
+            }
+          ],
+          "text": "Synthetic spike canary observation"
+        },
+        "subject": {
+          "reference": "Patient/patient-canary-0001"
+        },
+        "valueString": "ZZZ-PII-CANARY-0001",
+        "note": [
+          {
+            "text": "ZZZ-PII-CANARY-0001 synthetic sentinel — no real health data, see CLAUDE.md PII Tier 1"
+          }
+        ]
+      }
+    }
+  ]
+}

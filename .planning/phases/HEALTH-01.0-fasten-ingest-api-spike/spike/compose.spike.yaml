@@ -1,0 +1,34 @@
+# spike/compose.spike.yaml — THROWAWAY single-service Fasten for the Phase 1.0 ingest spike.
+#
+# This file is a reference/throwaway artifact. The durable deliverable is docs/fasten-admin.md.
+#
+# Image is pinned to the MULTI-ARCH OCI INDEX digest (NOT the per-arch linux/amd64 digest) so
+# a Windows-dev (amd64) host and a future Linux-prod host resolve correctly from one pin
+# (INFRA-06 cross-host parity). Verify the index digest with:
+#   docker buildx imagetools inspect ghcr.io/fastenhealth/fasten-onprem:main
+#
+# Secrets here are THROWAWAY only — never the production Vaultwarden secret (CLAUDE.md PII Tier 1).
+# FASTEN_JWT_ISSUER_KEY overrides Fasten's published insecure default
+# "thisismysupersecuressessionsecretlength" (RESEARCH.md Pitfall 1) — with the default unchanged
+# anyone can forge an admin JWT.
+#
+# Host port note: project host port 8080 (and 18080) were occupied at spike time, so this spike
+# maps host 18081 -> container 8080. The container's internal web.listen.port stays 8080
+# (Fasten config default). docs/fasten-admin.md records the chosen host port.
+#
+# No Traefik, no Vaultwarden, no healthcheck — that is Phase 1.4 productionisation, out of 1.0 scope.
+
+services:
+  fasten:
+    image: ghcr.io/fastenhealth/fasten-onprem:main@sha256:3f0192ac77dda7fd0e25175f7383a426f6d5ee11be7981b8753c10f6b7447d91
+    container_name: health-fasten-spike
+    ports:
+      - "18081:8080"            # host 18081 -> container 8080 (host 8080/18080 occupied at spike time)
+    environment:
+      - FASTEN_JWT_ISSUER_KEY=spike-throwaway-key-not-prod   # THROWAWAY — overrides insecure default
+      - FASTEN_LOG_LEVEL=INFO   # second audit pass flips this to WARN
+    volumes:
+      - fasten-spike-db:/opt/fasten/db   # Fasten database.location = /opt/fasten/db/fasten.db
+
+volumes:
+  fasten-spike-db:
