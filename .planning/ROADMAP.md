@@ -40,7 +40,7 @@ Phases execute in numeric order: 1.0 → 1.1 → 1.2 → 1.3 → 1.4 → 1.5 →
   4. `docs/fasten-admin.md` checked into the repo as the source of truth for downstream ETL phases.
   5. Spike completes within 2 working days; if blocked, escalation note documents the blocker and the chosen fallback (no silent overrun).
 **Plans**: 1 plan
-- [ ] 01.0-01-PLAN.md — Scaffold throwaway pinned Fasten + assertive spike harness, empirically confirm ingest contract + idempotency + PII-log audit, write durable docs/fasten-admin.md with escalation fallback
+- [x] 01.0-01-PLAN.md — Scaffold throwaway pinned Fasten + assertive spike harness, empirically confirm ingest contract + idempotency + PII-log audit, write durable docs/fasten-admin.md with escalation fallback
 **UI hint**: no
 
 ### Phase 1.1: Compose Skeleton + FDE + Vaultwarden Glue
