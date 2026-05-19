@@ -56,9 +56,14 @@ should not depend on the role claim — depend only on a valid `access` token.
 
 ```
 POST /api/secure/access/token   Authorization: Bearer <session JWT>
-     body {"name":"etl-spike","expiration":0}        (0 ⇒ exp = 2099-12-31)
+     body {"name":"etl","expiration":0}        (0 ⇒ exp = 2099-12-31)
   → 200 {"success":true,"data":"<access JWT>"}
 ```
+
+Canonical request body is `{"name":"etl","expiration":0}` (matches §0). `name` is a
+free-form human label with **no semantic effect** on the issued token — the spike
+happened to mint with `"etl-spike"`; Phase 1.4 should use a stable production-intent
+name such as `"etl"`. Do not treat `name` as an identifier or auth input.
 
 Decoded access-JWT payload (synthetic spike token, throwaway):
 
@@ -181,11 +186,15 @@ synthetic sentinel, in a volume destroyed at spike end).
 
 ## 3. Security Note — `jwt.issuer.key` (RESEARCH.md Pitfall 1)
 
-Fasten's `jwt.issuer.key` defaults to the **published constant**
-`thisismysupersecuressessionsecretlength` (confirmed present verbatim in the
-shipped `config.yaml` of the pinned digest, with the in-file comment "you should
-ABSOLUTELY change this value before deploying Fasten"). With it unchanged, **anyone
-can forge a valid JWT** and read/write all FHIR data. Fasten emits **no startup
+Fasten's `jwt.issuer.key` defaults to the **published upstream constant**
+`thisismysupersecuressessionsecretlength`  ⚠️ **NEVER place this (or any literal)
+in a deployed `config.yaml` — `jwt.issuer.key` MUST be `{{ bw get … }}` templated
+(see MANDATORY list below). This value is reproduced here only to prove the
+forgeable-default exists; it is the upstream public constant, not a project
+secret.** (Confirmed present verbatim in the shipped `config.yaml` of the pinned
+digest, with the in-file comment "you should ABSOLUTELY change this value before
+deploying Fasten".) With it unchanged, **anyone can forge a valid JWT** and
+read/write all FHIR data. Fasten emits **no startup
 warning** when the default is used — absence of error is NOT safety.
 
 **MANDATORY for Phase 1.1 / 1.4:**
@@ -195,7 +204,10 @@ warning** when the default is used — absence of error is NOT safety.
 - `database.encryption.key` is likewise MANDATORY (without it Fasten is in STANDBY
   and serves nothing — §1.5) and MUST be Vaultwarden-sourced. **Losing this key
   makes the SQLCipher DB unrecoverable** — back it up with the DB (encrypted, per
-  CLAUDE.md). Boot log confirms SQLCipher: `_cipher=sqlcipher … _key=<key>`.
+  CLAUDE.md). Boot log confirms SQLCipher: `_cipher=sqlcipher … _key=<key>` —
+  ⚠️ **this means the mandatory encryption key is emitted to `docker logs` at
+  startup. See §4.1.b — the Fasten container log is SECRET-bearing, not just
+  PII-bearing.**
 - The long-lived `access` token MUST be stored via `bw get`, **never** committed to
   the repo, baked into an image, or left env-inspectable. Rotate it on the 8-week
   re-pin runbook (INFRA-09 / threat T-1.0-04).
@@ -217,9 +229,10 @@ Method: ingest the synthetic sentinel Bundle, then
 | `INFO` (default) | **0** | sentinel does NOT surface |
 | `warn` | **0** | sentinel does NOT surface |
 
-**Result: at neither INFO nor WARN did bundle-derived content (the
-`ZZZ-PII-CANARY-0001` sentinel) leak into `docker logs`.** This is a strong positive
-security finding for this pinned build / this ingest path.
+**Result (INGEST DATA PATH ONLY): at neither INFO nor WARN did bundle-derived
+content (the `ZZZ-PII-CANARY-0001` sentinel) leak into `docker logs`.** The
+*ingest data path* is PII-clean for this pinned build; the *boot path* is **NOT
+secret-clean** — see §4.1.b. Do not read this as "logs are clean" unqualified.
 
 **Important nuance — gin access log is not gated by `log.level`:** even with
 `log.level: warn`, Fasten's gin HTTP access logger keeps emitting `level=info`
@@ -238,6 +251,29 @@ are PII-clean for the ingest path regardless.
    observed leaking payload at WARN — not required by this audit, kept as contingency.
 5. Phase 1.4 must re-run this exact canary audit if the pinned digest is bumped
    (PII-leak behaviour is build-specific — RESEARCH.md confidence MEDIUM on this).
+
+### 4.1.b SECRET-in-log finding (boot log, NOT ingest-path) — CR-01
+
+`database.encryption.key` (and possibly `jwt.issuer.key`, which the same config-load
+path may also echo — untested) IS emitted to the boot log via the SQLCipher DSN:
+`_cipher=sqlcipher … _key=<key>` (§3). The §4.1 canary audit above covers only the
+*ingest data path*; it does **NOT** cover startup secrets.
+
+**Verdict: SECRET LEAK at startup. `docker logs` is NOT secret-clean.** This does
+not contradict §4.1 (which is scoped to bundle/PII payload) — it is an additional,
+higher-severity finding the contract must carry forward, because losing or leaking
+`database.encryption.key` makes the SQLCipher DB unrecoverable (§3) and CLAUDE.md
+is explicit: secrets/tokens NIKDY do logov.
+
+**Phase 1.4 MANDATORY mitigations (in addition to the §4.1 list):**
+
+- Treat the Fasten container log as **secret-bearing**: restricted host mount, do
+  NOT ship boot lines off-host, ≤30-day retention, never into AI/debug payloads
+  (CLAUDE.md PII Tier 1).
+- Re-run the audit grepping for the **actual key value** AND `_key=` / `issuer.key`
+  at INFO and WARN; record occurrence counts the same way §4.1 does for the canary.
+- **Acceptance gate:** assert the Vaultwarden-sourced key value does NOT appear in
+  any log destination that leaves the host. This gate is BLOCKING for Phase 1.4.
 
 ### 4.2 Idempotency probe (RESEARCH.md Pitfall 4 / A3 → Phase 1.4 DATA-09)
 
@@ -261,6 +297,15 @@ Fasten for byte-identical Bundles, but the ETL MUST still enforce idempotency to
 (a) avoid manual-source row proliferation and (b) handle near-identical (not
 byte-identical) re-syncs. Keep the planned `meta.tag.code = sha256(canonical_payload)`
 dedup + a content-hash guard before POST so unchanged sources are not re-sent.
+
+**Unmitigated blast radius:** source-row growth is **O(number of ETL runs)** and is
+**NOT bounded by Fasten** — a daily re-sync (e.g. Apple Health) accretes one
+`manualSourceCredential` row per run indefinitely, each POST also producing an
+access-log line (§4.1). Phase 1.4 DATA-09 must therefore (a) content-hash-guard
+before POST AND (b) define a stale `manualSourceCredential` reaping / cap strategy.
+The spike only validated n=2 (`--twice`), **not** steady-state — do not assume the
+verify `GET /api/secure/resource/fhir` count stays stable across many runs without
+the reaping strategy in place.
 
 ---
 
