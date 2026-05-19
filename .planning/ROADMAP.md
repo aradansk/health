@@ -39,7 +39,8 @@ Phases execute in numeric order: 1.0 → 1.1 → 1.2 → 1.3 → 1.4 → 1.5 →
   3. Chosen Fasten image digest (`ghcr.io/fastenhealth/fasten-onprem:main@sha256:<digest>`) recorded in `docs/fasten-admin.md` together with the ingest endpoint, auth pattern, and response semantics.
   4. `docs/fasten-admin.md` checked into the repo as the source of truth for downstream ETL phases.
   5. Spike completes within 2 working days; if blocked, escalation note documents the blocker and the chosen fallback (no silent overrun).
-**Plans**: TBD
+**Plans**: 1 plan
+- [ ] 01.0-01-PLAN.md — Scaffold throwaway pinned Fasten + assertive spike harness, empirically confirm ingest contract + idempotency + PII-log audit, write durable docs/fasten-admin.md with escalation fallback
 **UI hint**: no
 
 ### Phase 1.1: Compose Skeleton + FDE + Vaultwarden Glue
@@ -193,7 +194,7 @@ Phases execute in numeric order: 1.0 → 1.1 → 1.2 → 1.3 → 1.4 → 1.5 →
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1.0 Fasten Ingest API Spike | 0/TBD | Not started | - |
+| 1.0 Fasten Ingest API Spike | 0/1 | Not started | - |
 | 1.1 Compose Skeleton + FDE + Vaultwarden Glue | 0/TBD | Not started | - |
 | 1.2 Postgres + RLS + Tests + ESLint Rule | 0/TBD | Not started | - |
 | 1.3 Traefik + Internal Network Routing | 0/TBD | Not started | - |
