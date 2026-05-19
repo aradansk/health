@@ -14,7 +14,7 @@ Pouzivatel teraz: Andrej (single-user). Pouzivatel pri pivote: health-conscious 
 
 ### Validated
 
-(None yet — ship to validate)
+- **Fasten programmatic ingest contract (de-risked in Phase 1.0 spike, 2026-05-19)** — the central M1 technical assumption ("does Fasten expose a programmatic FHIR Bundle ingest path?") is empirically confirmed: `POST /api/secure/source/manual` + long-lived `access` token. Contract locked in `docs/fasten-admin.md` (source of truth for ETL phases 1.4+). Paired PII-log audit done. Note: no Active M1 production requirement below is shipped yet — this validated the *approach*, not a production deliverable.
 
 ### Active
 
