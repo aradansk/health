@@ -4,12 +4,13 @@
 - (link na global user_profile)
 
 ## Projects
-*(zatial prazdne — pridavaj konkretne podprojekty ked vzniknu, napr. fasten-deployment, etl-apple-health, analytics-layer)*
+- [Phase 1.0 Fasten Ingest Spike — Outcome](C:/Users/andre/.claude/projects/C--ANDREJ-Claude-Projects-health/memory/project_phase_1.0_fasten_spike.md) — spike COMPLETE 2026-05-19; verified Fasten ingest contract + 7 carry-forward landmines for Phase 1.4 (env-vars dead, STANDBY needs enc key, SECRET-in-log gate, digest drift, idempotency)
 
 ## Infrastructure
 *(zatial prazdne — Postgres, Fasten, Traefik, Vaultwarden glue keď nasadené)*
 
 ## References
+- [gsd-sdk phase.complete padding bug](C:/Users/andre/.claude/projects/C--ANDREJ-Claude-Projects-health/memory/reference_gsd_phase_complete_padding_bug.md) — `phase.complete "01.0"` half-updates; re-run unpadded `1.0`. Cross-project GSD tooling gotcha.
 *(externe systemy odkazy — Fasten github, Oura API docs, FHIR R4 spec, EU eHealth)*
 
 ## Feedback
